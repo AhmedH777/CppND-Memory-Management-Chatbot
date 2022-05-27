@@ -49,6 +49,7 @@ ChatBot::ChatBot(const ChatBot &source)
     _image = new wxBitmap(*source._image);
     _chatLogic = source._chatLogic;
     _rootNode = source._rootNode;
+    _currentNode = source._currentNode;
 	std::cout << "COPYING content of instance " << &source << " to instance " << this << std::endl;
 }
 
@@ -64,6 +65,7 @@ ChatBot &ChatBot::operator=(const ChatBot &source)
     _image = new wxBitmap(*source._image);
     _chatLogic = source._chatLogic;
     _rootNode = source._rootNode;
+    _currentNode = source._currentNode;
 
     return *this;
 }
@@ -75,13 +77,17 @@ ChatBot::ChatBot(ChatBot &&source)
     _image = source._image;
     _chatLogic = source._chatLogic;
     _rootNode = source._rootNode;
+    _currentNode = source._currentNode;
 
-    _image = nullptr;
-    _chatLogic = nullptr;
-    _rootNode = nullptr;
+
+    source._image = nullptr;
+    source._chatLogic = nullptr;
+    source._rootNode = nullptr;
+    source._currentNode = nullptr;
+
 }
 
-ChatBot &ChatBot::operator=(const ChatBot &&source)
+ChatBot &ChatBot::operator=(ChatBot &&source)
 {
     std::cout << "MOVING (assign) instance " << &source << " to instance " << this << std::endl;
 
@@ -93,10 +99,14 @@ ChatBot &ChatBot::operator=(const ChatBot &&source)
     _image = source._image;
     _chatLogic = source._chatLogic;
     _rootNode = source._rootNode;
+    _currentNode = source._currentNode;
 
-    _image = nullptr;
-    _chatLogic = nullptr;
-    _rootNode = nullptr;
+
+    source._image = nullptr;
+    source._chatLogic = nullptr;
+    source._rootNode = nullptr;
+    source._currentNode = nullptr;
+
 
     return *this;
 }
@@ -148,8 +158,11 @@ void ChatBot::SetCurrentNode(GraphNode *node)
     std::uniform_int_distribution<int> dis(0, answers.size() - 1);
     std::string answer = answers.at(dis(generator));
 
+    _chatLogic->SetChatbotHandle(this);
+
     // send selected node answer to user
     _chatLogic->SendMessageToUser(answer);
+
 }
 
 int ChatBot::ComputeLevenshteinDistance(std::string s1, std::string s2)
